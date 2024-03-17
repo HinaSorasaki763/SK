@@ -23,14 +23,4 @@ public class BlinkingUI : MonoBehaviour
             }
         }
     }
-
-    // 用來控制開始和停止閃爍
-    public void ToggleBlinking(bool state)
-    {
-        isBlinking = state;
-        if (!isBlinking)
-        {
-            textToBlink.alpha = 1; // 確保停止閃爍時文本是可見的
-        }
-    }
 }

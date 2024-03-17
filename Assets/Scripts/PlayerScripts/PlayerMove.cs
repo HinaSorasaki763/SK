@@ -26,8 +26,6 @@ public class PlayerMove : MonoBehaviour,IPointerClickHandler
         if (SelectedCharacter == null) return;
 
         float speed = SelectedCharacter.GetComponent<PlayerStats>().GetSpeed() * Time.deltaTime;
-
-        // 通過三元運算符簡化速度的計算
         float speedX = currentJoystick.Horizontal switch
         {
             > 0.2f => speed,
@@ -41,8 +39,6 @@ public class PlayerMove : MonoBehaviour,IPointerClickHandler
             < -0.2f => -speed,
             _ => 0,
         };
-
-        // 更新位置
         SelectedCharacter.transform.position += new Vector3(speedX, speedY, 0);
         FindClosestInteractable();
     }
