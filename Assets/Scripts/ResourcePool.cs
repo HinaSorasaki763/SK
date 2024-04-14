@@ -29,18 +29,6 @@ public class ResourcePool : MonoBehaviour
             }
         }
     }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     IEnumerator InitializeIndicators(int count)
     {
         for (int i = 0; i < count; i++)
@@ -61,7 +49,7 @@ public class ResourcePool : MonoBehaviour
     {
         foreach (var indicator in indicators)
         {
-            if (!indicator.activeInHierarchy)
+            if (!indicator.activeInHierarchy&&indicator.transform.parent == indicatorParent)
             {
                 indicator.SetActive(true);
                 indicator.transform.parent = parent.transform;
@@ -100,10 +88,10 @@ public class ResourcePool : MonoBehaviour
     {
         foreach (var textObj in indicatorTexts)
         {
-            if (!textObj.activeInHierarchy)
+            if (!textObj.activeInHierarchy&&textObj.transform.parent == indicatorTextParent)
             {
-                textObj.SetActive(true);
                 textObj.GetComponent<TextMeshProUGUI>().text = "";
+                textObj.SetActive(true);
                 return textObj;
             }
         }

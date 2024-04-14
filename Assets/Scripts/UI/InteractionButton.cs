@@ -18,17 +18,12 @@ public class InteractionButton : MonoBehaviour
         ClearIndicator(interactable);
         interactableInRange = interactable;
         interactable.ShowIndicator(interactable.transform.position);
-        Debug.Log($"interactable = {interactable.name}");
         text.text = "Interact";
     }
     public void SetInteractableNull()
     {
         ClearIndicator();
         interactableInRange = null;
-        if (interactableInRange == null)
-        {
-            Debug.Log("interactable = null  ");
-        }
         text.text = "Attack";
     }
     public void ClearIndicator(Interactable interactable =null)
@@ -46,12 +41,8 @@ public class InteractionButton : MonoBehaviour
         }
         else
         {
-            Fire();
+            PlayerAttack.Instance.Attack();
         }
-    }
-    public void Fire()
-    {
-        Debug.Log("開火，但應該日後要從武器類引用");
     }
     public void Start()
     {

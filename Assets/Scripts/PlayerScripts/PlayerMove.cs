@@ -1,17 +1,30 @@
 ﻿using CustomUtility;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PlayerMove : MonoBehaviour,IPointerClickHandler
+public class PlayerMove : MonoBehaviour, IPointerClickHandler
 {
+    public static PlayerMove Instance;
     public Joystick currentJoystick;
     public GameObject SelectedCharacter;
     public float detectionRadius;
     public LayerMask interactableLayer;
     public InteractionButton btn;
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            if (Instance != this)
+            {
+                Destroy(gameObject);
+            }
+        }
+    }
     public void SetCurrentJoystick(Joystick joystick)
     {
         currentJoystick = joystick;
@@ -23,6 +36,10 @@ public class PlayerMove : MonoBehaviour,IPointerClickHandler
     }
     public void Update()
     {
+        if (Input.GetKeyDown("k"))
+        {
+            WeaponGenerator.Instance.CreateRandWeapon();
+        }
         if (SelectedCharacter == null) return;
 
         float speed = SelectedCharacter.GetComponent<PlayerStats>().GetSpeed() * Time.deltaTime;
@@ -46,26 +63,34 @@ public class PlayerMove : MonoBehaviour,IPointerClickHandler
         SelectedCharacter.transform.position += new Vector3(speedX, speedY, 0);
         FindClosestInteractable();
     }
+    public Vector3 GetPlayerPos()
+    {
+        return SelectedCharacter.transform.position;
+    }
+    public void DontDestroy()
+    {
+        SelectedCharacter.transform.parent = null;
+        SelectedCharacter.AddComponent<DontDestroyOnLoadComponent>();
+    }
     void FindClosestInteractable()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(SelectedCharacter.transform.position, detectionRadius, interactableLayer);
         float closestDistance = float.MaxValue;
         Interactable closestInteractable = null;
-        Debug.Log($"hit.count = {hits.Length}");
         foreach (var hit in hits)
         {
             Interactable interactable = hit.GetComponent<Interactable>();
             if (interactable != null)
             {
                 float distance = Vector3.Distance(transform.position, hit.transform.position);
-                if (distance < closestDistance)
+                if (distance < closestDistance && !interactable.InteractionDisabled)
                 {
                     closestDistance = distance;
                     closestInteractable = interactable;
                 }
             }
         }
-        if (closestInteractable!= null)
+        if (closestInteractable != null)
         {
             btn.SetInteractable(closestInteractable);
         }

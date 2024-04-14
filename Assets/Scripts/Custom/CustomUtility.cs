@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-namespace CustomUtility
+namespace CustomUtility//所有公用的項目
 {
     enum PlayerStats
     {
@@ -24,24 +24,48 @@ namespace CustomUtility
     public abstract class Interactable : MonoBehaviour
     {
         public string objectName = "Interactable Object";
+        public bool InteractionDisabled;
         public abstract void Interact();
         public virtual void ShowIndicator(Vector3 pos)
         {
             if (!transform.Find("IndicatorPrefab(Clone)"))
             {
                 GameObject indicator = ResourcePool.Instance.GetIndicator(gameObject);
-                Indicator indicator1 = indicator.GetComponent<Indicator>();
-                indicator1.ResetPos(pos + new Vector3(0, 0.5f, 0));
-                indicator1.indicatorText = ResourcePool.Instance.GetIndicatorText();
-                indicator1.indicatorText.GetComponent<TextMeshProUGUI>().text = objectName;
+                Indicator indicatorScript = indicator.GetComponent<Indicator>();
+                BoxCollider2D collider = GetComponent<BoxCollider2D>();
+                if (collider != null)
+                {
+                    Vector3 topOfObject = collider.bounds.center + new Vector3(0, collider.size.y / 2, 0);
+                    indicatorScript.ResetPos(topOfObject);
+                    Debug.Log("Success");
+                }
+                else
+                {
+                    indicatorScript.ResetPos(pos + new Vector3(0, 0.5f, 0));
+                    Debug.Log("Error");
+                }
+                indicatorScript.indicatorText = ResourcePool.Instance.GetIndicatorText();
+                indicatorScript.indicatorText.GetComponent<TextMeshProUGUI>().text = objectName;
             }
             else
             {
                 Transform obj = transform.Find("IndicatorPrefab(Clone)");
+                Indicator indicatorScript = obj.GetComponent<Indicator>();
+                indicatorScript.indicatorText.GetComponent<TextMeshProUGUI>().text = "";
+                BoxCollider2D collider = GetComponent<BoxCollider2D>();
+                Vector3 topOfObject = collider.bounds.center + new Vector3(0, collider.size.y / 2, 0);
+                indicatorScript.ResetPos(topOfObject);
+                indicatorScript.indicatorText.SetActive(true);
                 obj.gameObject.SetActive(true);
-                obj.GetComponent<Indicator>().indicatorText.SetActive(true);
-                obj.GetComponent<Indicator>().indicatorText.GetComponent<TextMeshProUGUI>().text= objectName;
+                StartCoroutine(WaitOneFrame(indicatorScript));
+
             }
+        }
+        IEnumerator WaitOneFrame(Indicator indicatorScript)
+        {
+            yield return null;
+
+            indicatorScript.indicatorText.GetComponent<TextMeshProUGUI>().text = objectName;
         }
         public virtual void HideIndicator()
         {

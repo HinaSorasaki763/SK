@@ -12,7 +12,10 @@ public class Portal : Interactable
     }
     public override void Interact()
     {
+        PlayerMove.Instance.DontDestroy();
         Debug.Log("Portal interact");
         SceneManager.LoadScene("BattleScene");
     }
+    
+
 }
