@@ -13,9 +13,11 @@ public class CharacterSelector : MonoBehaviour
     public GameObject Selector;
     public PlayerMove playerMove;
     public List<GameObject> marks = new List<GameObject>();
+    public GameObject OperatingCanva;
     public void Awake()
     {
         ConfirmButton.onClick.AddListener(ConfirmCharacter);
+        ConfirmButton.onClick.AddListener(ResetCamera);
     }
     public void ShowStats(PlayerScriptableObject playerStats,int level)
     {
@@ -29,14 +31,23 @@ public class CharacterSelector : MonoBehaviour
     public void ConfirmCharacter()
     {
         Joysticks.SetActive(true);
+        OperatingCanva.SetActive(true);
         Selector.SetActive(false);
         foreach (var item in marks)
         {
             item.SetActive(false);
         }
+        PlayerMove.Instance.DontDestroy();
     }
     public void ResetCamera()
     {
+        Camera camera = Camera.main;
+        camera.orthographicSize = 5;
+        camera.transform.position = new Vector3(0, 0, -10);
+    }
+    public void Deselect()
+    {
+        playerMove.SelectedCharacter = null;
         Camera camera = Camera.main;
         camera.orthographicSize = 5;
         camera.transform.position = new Vector3(0, 0, -10);
