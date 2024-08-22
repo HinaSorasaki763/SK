@@ -1,64 +1,107 @@
-using CustomUtility;
+ï»¿using CustomUtility;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems; // æ·»åŠ å‘½åç©ºé—´
 
 public class InteractionButton : MonoBehaviour
 {
     public Button Button;
     public TMPro.TextMeshProUGUI text;
     private Interactable interactableInRange;
+    private bool isButtonPressed = false;
+    private float lastAttackTime;
+    private float pointerDownTime;
     public void Awake()
     {
-        Button.onClick.AddListener(PerformInteract);
+        Button.onClick.AddListener(OnButtonClick);
     }
+
     public void SetInteractable(Interactable interactable)
     {
         ClearIndicator(interactable);
         interactableInRange = interactable;
         interactable.ShowIndicator(interactable.transform.position);
-        Debug.Log($"interactable = {interactable.name}");
         text.text = "Interact";
     }
+
     public void SetInteractableNull()
     {
         ClearIndicator();
         interactableInRange = null;
-        if (interactableInRange == null)
-        {
-            Debug.Log("interactable = null  ");
-        }
         text.text = "Attack";
     }
-    public void ClearIndicator(Interactable interactable =null)
+
+    public void ClearIndicator(Interactable interactable = null)
     {
-        if (interactableInRange != null&&interactable != interactableInRange)
+        if (interactableInRange != null && interactable != interactableInRange)
         {
             interactableInRange.HideIndicator();
         }
     }
-    public void PerformInteract()
+
+    public void OnButtonClick()
     {
-        if (interactableInRange!=null)
+        if (interactableInRange != null)
         {
             interactableInRange.Interact();
         }
         else
         {
-            Fire();
+            PlayerAttack.Instance.Attack();
+            lastAttackTime = Time.time; // è®°å½•ç¬¬ä¸€æ¬¡æ”»å‡»çš„æ—¶é—´
         }
     }
-    public void Fire()
+
+    private IEnumerator LongPressCheck()
     {
-        Debug.Log("¶}¤õ¡A¦ıÀ³¸Ó¤é«á­n±qªZ¾¹Ãş¤Ş¥Î");
+        while (isButtonPressed)
+        {
+            yield return new WaitForSeconds(1f);
+            if (interactableInRange == null && Time.time - lastAttackTime >= PlayerAttack.Instance.weaponInHand.weaponData.cooldownTime)
+            {
+                PlayerAttack.Instance.Attack();
+                lastAttackTime = Time.time; 
+            }
+        }
+    }
+
+    public void OnPointerUp()
+    {
+        isButtonPressed = false;
+    }
+
+    public void OnPointerDown()
+    {
+        isButtonPressed = true;
+        pointerDownTime = Time.time;
     }
     public void Start()
     {
-        
+        // æ·»åŠ æŒ‡é’ˆäº‹ä»¶ç›‘å¬å™¨
+        EventTrigger trigger = Button.gameObject.AddComponent<EventTrigger>();
+
+        EventTrigger.Entry pointerDownEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerDown
+        };
+        pointerDownEntry.callback.AddListener((data) => { OnPointerDown(); });
+        trigger.triggers.Add(pointerDownEntry);
+
+        EventTrigger.Entry pointerUpEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerUp
+        };
+        pointerUpEntry.callback.AddListener((data) => { OnPointerUp(); });
+        trigger.triggers.Add(pointerUpEntry);
     }
+
     public void Update()
     {
-        
+        if (isButtonPressed && Time.time - pointerDownTime >= 1f)
+        {
+            StartCoroutine(LongPressCheck());
+            isButtonPressed = false; // é˜²æ­¢é‡å¤å¯åŠ¨
+        }
     }
 }

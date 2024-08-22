@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace CustomUtility
 {
+    
     enum PlayerStats
     {
         Hitpoint,
@@ -21,9 +22,30 @@ namespace CustomUtility
         Priest,
         Ranger
     }
+    public enum AttackTypeTag
+    {
+        Melee,
+        Ranged,
+        Bullet,
+        Laser
+    }
+    public static class Utility
+    {
+        public static float AttackRangeRatio = 0.33f;
+        public static bool HasTag(List<AttackTypeTag> tags, AttackTypeTag tag)
+        {
+            return tags.Contains(tag);
+        }
+
+        public static void DebugTags(List<AttackTypeTag> tags)
+        {
+            Debug.Log("Tags: " + string.Join(", ", tags));
+        }
+    }
     public abstract class Interactable : MonoBehaviour
     {
         public string objectName = "Interactable Object";
+        public bool detectable = true;
         public abstract void Interact();
         public virtual void ShowIndicator(Vector3 pos)
         {
@@ -45,14 +67,13 @@ namespace CustomUtility
         }
         public virtual void HideIndicator()
         {
-            
             Transform obj = transform.Find("IndicatorPrefab(Clone)");
             obj.gameObject.SetActive(false);
             obj.GetComponent<Indicator>().indicatorText.SetActive(false);
             obj.GetComponent<Indicator>().indicatorText.GetComponent<TextMeshProUGUI>().text = "";
         }
 
-        protected virtual void Awake()
+        public virtual void Awake()
         {
 
         }
