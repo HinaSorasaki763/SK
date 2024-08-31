@@ -1,45 +1,38 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ClassicBullet : MonoBehaviour
 {
     public float speed = 10f;
     public float lifetime = 2f;
-    private float life = 0;
-    private void Start()
-    {
-        
-    }
+    public int Dmg;
+
     private void OnEnable()
     {
-        life = 0;
+        Invoke(nameof(ReturnToPool), lifetime);
     }
-    public void Update()
+
+    public void Initialize(Vector2 direction)
     {
-        life += Time.deltaTime;
-        if (life >= lifetime)
+        transform.SetParent(ResourcePool.Instance.tempBulletParent);
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
         {
-            life = 0;
-            ResourcePool.Instance.ReturnClassicBullet(gameObject);
+            rb.velocity = direction * speed;
         }
     }
-        public void Initialize(Vector2 direction)
-        {
-            Rigidbody2D rb = GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                rb.velocity = direction * speed;
-            }
-        }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.collider.CompareTag("Enemy"))
+        if (collision.CompareTag("Enemy"))
         {
-            Debug.Log($"collide on {collision.collider.name}");
-            ResourcePool.Instance.ReturnClassicBullet(gameObject);
+            Debug.Log($"Dealing {Dmg} dmg to {collision.gameObject.name}");
+            CancelInvoke(nameof(ReturnToPool));
+            ReturnToPool();
         }
+    }
 
+    private void ReturnToPool()
+    {
+        ResourcePool.Instance.ReturnClassicBullet(gameObject);
     }
 }

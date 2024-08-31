@@ -40,11 +40,12 @@ public class WeaponGenerator : MonoBehaviour
         {7, (gameObject) => gameObject.AddComponent<LaserSpear>()},
     };
 
-    public void CreateWeapon(int indx)
+    public void CreateWeapon(int indx,Vector3 v)
     {
         GameObject weaponObject = Instantiate(weapons[indx].WeaponObject);
         Weapon weaponComponent = weaponDict[indx](weaponObject);
         weaponComponent.objectName = weapons[indx].WeaponName;
+        weaponObject.transform.position = v;
         Debug.Log("Added Component Type: " + weaponComponent.GetType());
     }
 

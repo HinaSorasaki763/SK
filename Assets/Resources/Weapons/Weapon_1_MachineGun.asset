@@ -14,3 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WeaponObject: {fileID: 5853633110926794003, guid: 44860b0a5763c704fa5f98d2f814b877, type: 3}
   WeaponName: MachineGun
+  index: 1
+  attackRange: 0
+  cooldownTime: 0
+  damage: 0
+  manaCost: 0

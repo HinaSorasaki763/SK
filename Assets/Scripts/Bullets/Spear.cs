@@ -1,34 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Spear : MonoBehaviour
 {
-
     public int Dmg;
-    private GameObject parentWeapon;
-    private Transform spear_head;
-    const float life = 5f;
-    public void Init(GameObject obj,int dmg)
+    private Transform spearHead;
+    private const float life = 0.25f;
+
+    public void Init(GameObject parentWeapon, int dmg)
     {
         Dmg = dmg;
-        parentWeapon = obj;
-        spear_head = parentWeapon.transform.Find("SpearHead");
-        transform.position = spear_head.position;
-        transform.SetParent( null);
-        Invoke(nameof(Return),life);
+        spearHead = parentWeapon.transform.Find("SpearHead");
+        transform.position = spearHead.position;
+        transform.SetParent(null);
+        Invoke(nameof(ReturnToPool), life);
     }
-    public void Return()
+
+    private void ReturnToPool()
     {
-        spear_head = null;
-        parentWeapon = null;
+        spearHead = null;
         ResourcePool.Instance.ReturnSpearAttack(gameObject);
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Enemy"))
         {
-            Debug.Log($"Dealing {5} dmg");
+            Debug.Log($"Dealing {Dmg} dmg");
         }
     }
 }

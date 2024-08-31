@@ -1,22 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class GameController : MonoBehaviour
 {
     public MapBuilder mapBuilder;
-
     void Start()
     {
         mapBuilder.BuildHollowSquare();
-    }
-
-    void Update()
-    {
-        // 例如，可以在按下某个按键时清理地图
-        if (Input.GetKeyDown(KeyCode.C))
+        for (int i = 0; i < 7; i++)
         {
-            mapBuilder.ClearMap();
+            Vector3 v = new Vector3(0,5+i,0);
+            WeaponGenerator.Instance.CreateWeapon(i,v);
         }
     }
 }

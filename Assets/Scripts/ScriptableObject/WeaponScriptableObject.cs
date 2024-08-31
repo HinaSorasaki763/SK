@@ -10,4 +10,5 @@ public class WeaponScriptableObject : ScriptableObject
     public float cooldownTime;
     public int damage;
     public int manaCost;
+    public bool isMelee;
 }

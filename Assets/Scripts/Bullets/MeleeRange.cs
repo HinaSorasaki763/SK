@@ -5,24 +5,22 @@ using UnityEngine;
 public class MeleeRange : MonoBehaviour
 {
     public int Dmg;
-    private float counter;
+    const float life = 0.25f;
+    private void OnEnable()
+    {
+        Invoke(nameof(ResetMeleeRange), life);
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Enemy"))
         {
-            // 对敌人造成伤害
-            Debug.Log($"Dealing {Dmg} dmg");
+            Debug.Log($"Dealing {Dmg} dmg to {collision.gameObject.name}");
         }
     }
-    public void Update()
+    private void ResetMeleeRange()
     {
-        counter += Time.deltaTime;
-        if (counter > 0.25f)
-        {
-            counter = 0;
-            Dmg = 0;
-
-            ResourcePool.Instance.ReturnMeleeRange(gameObject);
-        }
+        Dmg = 0;
+        ResourcePool.Instance.ReturnMeleeRange(gameObject);
     }
 }
