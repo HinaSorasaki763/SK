@@ -1,105 +1,108 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using CustomUtility;
-using Unity.VisualScripting;
+using System.Linq;
 
 public interface IWeaponBehaviour
 {
     void Attack();
+    List<AttackTypeTag> Tags { get; }
 }
-public class Example :IWeaponBehaviour
+
+public abstract class WeaponBehaviourBase : IWeaponBehaviour
 {
-    public List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
-    public void Attack()
+    protected GameObject parentWeapon;
+    public abstract List<AttackTypeTag> Tags { get; }
+    public abstract void Attack();
+
+    protected WeaponBehaviourBase(GameObject parentWeapon)
     {
-        Debug.Log("Example Attack");
-        Utility.DebugTags(Tags);
+        this.parentWeapon = parentWeapon;
     }
 
+    protected void DebugTags() => Utility.DebugTags(Tags);
 }
-public class LaserAttack : IWeaponBehaviour
+
+public abstract class RangedWeaponBehaviour : WeaponBehaviourBase
 {
-    private IBullet bulletType;
-    private GameObject parentWeapon;
-    public List<AttackTypeTag> Tags
-    {
-        get
-        {
-            var tags = new List<AttackTypeTag> { AttackTypeTag.Ranged };
-            tags.AddRange(bulletType.Tags);
-            return tags;
-        }
-    }
-    public LaserAttack(IBullet bulletType, GameObject parentWeapon)
+    protected IBullet bulletType;
+
+    protected RangedWeaponBehaviour(IBullet bulletType, GameObject parentWeapon) : base(parentWeapon)
     {
         this.bulletType = bulletType;
-        this.parentWeapon = parentWeapon;
-        this.bulletType.SetParent(parentWeapon);
+        bulletType.SetParent(parentWeapon);
     }
 
-    public void Attack()
+    public override List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Ranged }.Concat(bulletType.Tags).ToList();
+}
+
+public class Example : WeaponBehaviourBase
+{
+    public override List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
+
+    public Example(GameObject parentWeapon) : base(parentWeapon) { }
+
+    public override void Attack()
+    {
+        Debug.Log("Example Attack");
+        DebugTags();
+    }
+}
+
+public class LaserAttack : RangedWeaponBehaviour
+{
+    public LaserAttack(IBullet bulletType, GameObject parentWeapon) : base(bulletType, parentWeapon) { }
+
+    public override void Attack()
     {
         Debug.Log("Laser Attack");
         bulletType.Fire();
-        Utility.DebugTags(Tags);
+        DebugTags();
     }
 }
-public class SpearAttack : IWeaponBehaviour
+
+public class SpearAttack : WeaponBehaviourBase
 {
     private int dmg;
     private int length;
-    private GameObject parentWeapon;
-    public List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
-    public SpearAttack(int dmg, int length, GameObject parentWeapon)
+
+    public SpearAttack(int dmg, int length, GameObject parentWeapon) : base(parentWeapon)
     {
         this.dmg = dmg;
         this.length = length;
-        this.parentWeapon = parentWeapon;
     }
 
-    public void Attack()
+    public override List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
+
+    public override void Attack()
     {
         Debug.Log("Spear Attack");
-        Utility.DebugTags(Tags);
-        PerformspearAttack();
+        DebugTags();
+        PerformSpearAttack();
     }
-    private void PerformspearAttack()
+
+    private void PerformSpearAttack()
     {
-        GameObject spear =  ResourcePool.Instance.GetSpearAttack(parentWeapon);
-        spear.GetComponent<Spear>().Init(parentWeapon,dmg);
+        GameObject spear = ResourcePool.Instance.GetSpearAttack(parentWeapon);
+        spear.GetComponent<Spear>().Init(parentWeapon, dmg);
         spear.transform.localScale = new Vector3(length, length, length) * Utility.AttackRangeRatio;
         spear.transform.rotation = parentWeapon.transform.rotation * Quaternion.Euler(0, 0, 270);
     }
-
 }
-public class ShotgunAttack : IWeaponBehaviour
-{
-    private IBullet bulletType;
-    private GameObject parentWeapon;
-    private int numberOfPellets = 5;
-    private float spreadAngle = 30f;
 
-    public ShotgunAttack(IBullet bulletType, GameObject parentWeapon,int numberOfPellets,float spreadAngle)
+public class ShotgunAttack : RangedWeaponBehaviour
+{
+    private int numberOfPellets;
+    private float spreadAngle;
+
+    public ShotgunAttack(IBullet bulletType, GameObject parentWeapon, int numberOfPellets, float spreadAngle)
+        : base(bulletType, parentWeapon)
     {
-        this.bulletType = bulletType;
-        this.parentWeapon = parentWeapon;
         this.numberOfPellets = numberOfPellets;
         this.spreadAngle = spreadAngle;
-        this.bulletType.SetParent(parentWeapon);
     }
 
-    public List<AttackTypeTag> Tags
-    {
-        get
-        {
-            var tags = new List<AttackTypeTag> { AttackTypeTag.Ranged };
-            tags.AddRange(bulletType.Tags);
-            return tags;
-        }
-    }
-
-    public void Attack()
+    public override void Attack()
     {
         Debug.Log($"Shotgun Attack, numberOfPellets = {numberOfPellets}");
         for (int i = 0; i < numberOfPellets; i++)
@@ -110,61 +113,47 @@ public class ShotgunAttack : IWeaponBehaviour
             bulletType.Fire(direction);
             Debug.Log($"Firing {i} bullet, bullet type = {bulletType}");
         }
-        Utility.DebugTags(Tags);
+        DebugTags();
     }
-
 }
 
-public class MachineGunAttack : IWeaponBehaviour
+public class MachineGunAttack : RangedWeaponBehaviour
 {
-    private IBullet bulletType;
-    private GameObject parentGameobject;
-    public MachineGunAttack(IBullet bulletType,GameObject parent)
-    {
-        this.bulletType = bulletType;
-        this.parentGameobject = parent;
-        this.bulletType.SetParent(parent);
-    }
+    public MachineGunAttack(IBullet bulletType, GameObject parentWeapon) : base(bulletType, parentWeapon) { }
 
-    public List<AttackTypeTag> Tags
-    {
-        get
-        {
-            var tags = new List<AttackTypeTag> { AttackTypeTag.Ranged };
-            tags.AddRange(bulletType.Tags);
-            return tags;
-        }
-    }
-    public void Attack()
+    public override void Attack()
     {
         Debug.Log("MachineGun Attack");
         bulletType.Fire();
-        Utility.DebugTags(Tags);
+        DebugTags();
     }
 }
-public class BladeAttack : IWeaponBehaviour
+
+public class BladeAttack : WeaponBehaviourBase
 {
     private int dmg;
     private int length;
-    private GameObject parentWeapon;
-    public List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
-    public BladeAttack(int length,int dmg, GameObject parentWeapon)
+
+    public BladeAttack(int dmg, int length, GameObject parentWeapon) : base(parentWeapon)
     {
-        this.length = length;
-        this.parentWeapon = parentWeapon;
         this.dmg = dmg;
+        this.length = length;
     }
-    public void Attack()
+
+    public override List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
+
+    public override void Attack()
     {
         Debug.Log($"Blade Attack length = {length}");
-        Utility.DebugTags(Tags);
+        DebugTags();
         PerformBladeAttack();
     }
+
     private void PerformBladeAttack()
     {
         GameObject attackRange = ResourcePool.Instance.GetMeleeAttackRange(parentWeapon);
         attackRange.GetComponent<MeleeRange>().Dmg = dmg;
-        attackRange.transform.localScale = new Vector3(length,length,length)*Utility.AttackRangeRatio;
+        attackRange.transform.localScale = new Vector3(length, length, length) * Utility.AttackRangeRatio;
         attackRange.transform.rotation = parentWeapon.transform.rotation * Quaternion.Euler(0, 0, -45);
     }
 }

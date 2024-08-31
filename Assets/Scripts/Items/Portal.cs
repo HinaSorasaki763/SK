@@ -13,6 +13,8 @@ public class Portal : Interactable
     public override void Interact()
     {
         Debug.Log("Portal interact");
+        Disable();
         SceneManager.LoadScene("BattleScene");
+
     }
 }

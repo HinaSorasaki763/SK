@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
@@ -29,6 +30,7 @@ public class ResourcePool : MonoBehaviour
     private Dictionary<GameObject, Transform> parents = new Dictionary<GameObject, Transform>();
 
     public Transform tempLaserParent;
+    public Transform tempBulletParent;
 
     private void Awake()
     {
@@ -86,27 +88,28 @@ public class ResourcePool : MonoBehaviour
 
     public GameObject GetObjectFromPool(GameObject prefab, Transform customParent, Vector3 position = default)
     {
+        CleanUpPool(prefab);
         if (!pools.ContainsKey(prefab))
         {
+            Debug.LogWarning($"Pool does not contain prefab: {prefab.name}. Initializing pool.");
             InitializePool(prefab, customParent, 1);
         }
-
-        foreach (var item in pools[prefab])
+        var pooledItem = pools[prefab].FirstOrDefault(item => item != null && !item.activeInHierarchy && item.transform.parent == parents[prefab]);
+        if (pooledItem != null)
         {
-            if (!item.activeInHierarchy && item.transform.parent == parents[prefab])
-            {
-                item.SetActive(true);
-                item.transform.SetParent(customParent);
-                item.transform.position = position == default ? customParent.position : position;
-                return item;
-            }
+            SetObjectTransform(pooledItem, customParent, position);
+            return pooledItem;
         }
-
-        GameObject newObj = CreateNewPrefab(prefab);
-        newObj.SetActive(true);
-        newObj.transform.SetParent(customParent);
-        newObj.transform.position = position == default ? customParent.position : position;
+        var newObj = CreateNewPrefab(prefab);
+        SetObjectTransform(newObj, customParent, position);
         return newObj;
+    }
+
+    private void SetObjectTransform(GameObject obj, Transform customParent, Vector3 position)
+    {
+        obj.SetActive(true);
+        obj.transform.SetParent(customParent);
+        obj.transform.position = position == default ? customParent.position : position;
     }
 
     public void ReturnObjectToPool(GameObject obj, GameObject prefab)
@@ -119,7 +122,6 @@ public class ResourcePool : MonoBehaviour
         }
     }
 
-    // Wrapper methods for specific objects
     public GameObject GetClassicBullet(GameObject weapon) =>
         GetObjectFromPool(ClassicBulletPrefab, weapon.transform);
 
@@ -149,9 +151,17 @@ public class ResourcePool : MonoBehaviour
 
     public void ReturnWall(GameObject wall) =>
         ReturnObjectToPool(wall, wallPrefab);
+    public GameObject GetIndicator(GameObject parent)
+    {
+        if (parent == null)
+        {
+            Debug.LogError("Parent object is null when trying to get indicator.");
+            return null;
+        }
 
-    public GameObject GetIndicator(GameObject parent) =>
-        GetObjectFromPool(indicatorPrefab, parent.transform);
+        Debug.Log($"Getting indicator for parent: {parent.name}");
+        return GetObjectFromPool(indicatorPrefab, parent.transform);
+    }
 
     public void ReturnIndicator(GameObject indicator) =>
         ReturnObjectToPool(indicator, indicatorPrefab);
@@ -171,4 +181,12 @@ public class ResourcePool : MonoBehaviour
             ReturnObjectToPool(textObj, IndicatorTextPrefab);
         }
     }
+    private void CleanUpPool(GameObject prefab)
+    {
+        if (pools.ContainsKey(prefab))
+        {
+            pools[prefab].RemoveAll(item => item == null);
+        }
+    }
+
 }

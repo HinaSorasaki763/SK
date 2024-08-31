@@ -12,5 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f867d11e758b04468c3877439439143, type: 3}
   m_Name: weapon_7_LaserSpear
   m_EditorClassIdentifier: 
-  WeaponObject: {fileID: 5853633110926794003, guid: 6d214b27de4ba43488eb8de838c6296a, type: 3}
+  WeaponObject: {fileID: 5853633110926794003, guid: 7962e123aa8a742408a7e9ee98001e8a, type: 3}
   WeaponName: laserSpear
+  index: 7
+  attackRange: 0
+  cooldownTime: 0
+  damage: 0
+  manaCost: 0
+  isMelee: 1

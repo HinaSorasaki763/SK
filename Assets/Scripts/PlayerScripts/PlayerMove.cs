@@ -1,20 +1,17 @@
 ﻿using CustomUtility;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Experimental.GlobalIllumination;
 
-public class PlayerMove : MonoBehaviour,IPointerClickHandler
+public class PlayerMove : MonoBehaviour, IPointerClickHandler
 {
-    public static PlayerMove Instance;
+    public static PlayerMove Instance { get; private set; }
     public Joystick currentJoystick;
     public GameObject SelectedCharacter;
     public float detectionRadius;
     public LayerMask interactableLayer;
     public InteractionButton btn;
-    private Vector3 joysitckDir;
+    private Vector3 joystickDir;
+
     private void Awake()
     {
         if (Instance == null)
@@ -22,92 +19,79 @@ public class PlayerMove : MonoBehaviour,IPointerClickHandler
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
-            if (Instance != this)
-            {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject);
         }
     }
+
     public void SetCurrentJoystick(Joystick joystick)
     {
         currentJoystick = joystick;
         Debug.Log($"currentJoystick = {currentJoystick.name}");
     }
-    public Vector3 GetJoysickDir()
-    {
-        return joysitckDir;
-    }
-    public void UpdateJoystickDir(Vector3 dir)
-    {
-        joysitckDir = dir;
-    }
-    public void OnPointerClick(PointerEventData eventData)
-    {
 
-    }
-    public void Update()
+    public Vector3 GetJoystickDir() => joystickDir;
+
+    public void UpdateJoystickDir(Vector3 dir) => joystickDir = dir;
+
+    public void OnPointerClick(PointerEventData eventData) { }
+
+    private void Update()
     {
         if (Input.GetKeyDown("k"))
         {
             WeaponGenerator.Instance.CreateRandWeapon();
         }
+
         if (SelectedCharacter == null) return;
 
-        float speed = SelectedCharacter.GetComponent<PlayerStats>().GetSpeed() * Time.deltaTime;
-        float speedX = currentJoystick.Horizontal switch
-        {
-            > 0.2f => speed,
-            < -0.2f => -speed,
-            _ => 0,
-        };
-        float speedY = currentJoystick.Vertical switch
-        {
-            > 0.2f => speed,
-            < -0.2f => -speed,
-            _ => 0,
-        };
-        Vector3 dir = new Vector3(speedX, speedY, 0);
-        SelectedCharacter.transform.position += dir;
-        Vector3 pv = SelectedCharacter.transform.position;
-        Camera.main.transform.position = new Vector3(pv.x,pv.y,-10);
+        MoveCharacter();
         UpdateJoystickDir(new Vector3(currentJoystick.Horizontal, currentJoystick.Vertical, 0));
         FindClosestInteractable();
     }
-    public Vector3 GetPlayerPos()
+
+    private void MoveCharacter()
     {
-        return SelectedCharacter.transform.position;
+        float speed = SelectedCharacter.GetComponent<PlayerStats>().GetSpeed() * Time.deltaTime;
+        Vector3 direction = new(
+            currentJoystick.Horizontal > 0.2f ? speed : currentJoystick.Horizontal < -0.2f ? -speed : 0,
+            currentJoystick.Vertical > 0.2f ? speed : currentJoystick.Vertical < -0.2f ? -speed : 0,
+            0
+        );
+
+        SelectedCharacter.transform.position += direction;
+        Camera.main.transform.position = SelectedCharacter.transform.position + new Vector3(0, 0, -10);
     }
+
+    public Vector3 GetPlayerPos() => SelectedCharacter.transform.position;
+
     public void DontDestroy()
     {
         SelectedCharacter.transform.parent = null;
-        
         SelectedCharacter.AddComponent<DontDestroyOnLoadComponent>();
     }
-    void FindClosestInteractable()
+
+    private void FindClosestInteractable()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(SelectedCharacter.transform.position, detectionRadius, interactableLayer);
-        float closestDistance = float.MaxValue;
         Interactable closestInteractable = null;
+        float closestDistance = float.MaxValue;
+
         foreach (var hit in hits)
         {
-            Interactable interactable = hit.GetComponent<Interactable>();
-            if ( !interactable.detectable )
+            var interactable = hit.GetComponent<Interactable>();
+            if (interactable == null || !interactable.detectable) continue;
+
+            float distance = Vector3.Distance(transform.position, hit.transform.position);
+            if (distance < closestDistance)
             {
-                continue;
-            }
-            if (interactable != null)
-            {
-                float distance = Vector3.Distance(transform.position, hit.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestInteractable = interactable;
-                }
+                closestDistance = distance;
+                closestInteractable = interactable;
             }
         }
-        if (closestInteractable!= null)
+
+        if (closestInteractable != null)
         {
             btn.SetInteractable(closestInteractable);
         }

@@ -2,45 +2,44 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // 添加命名空间
+using UnityEngine.EventSystems;
+using TMPro;
 
 public class InteractionButton : MonoBehaviour
 {
     public Button Button;
-    public TMPro.TextMeshProUGUI text;
+    public TextMeshProUGUI text;
     private Interactable interactableInRange;
     private bool isButtonPressed = false;
     private float lastAttackTime;
     private float pointerDownTime;
-    public void Awake()
+
+    private void Awake()
     {
         Button.onClick.AddListener(OnButtonClick);
+        AddPointerEvent(EventTriggerType.PointerDown, OnPointerDown);
+        AddPointerEvent(EventTriggerType.PointerUp, OnPointerUp);
     }
 
     public void SetInteractable(Interactable interactable)
     {
-        ClearIndicator(interactable);
-        interactableInRange = interactable;
-        interactable.ShowIndicator(interactable.transform.position);
+        if (interactableInRange != interactable)
+        {
+            interactableInRange?.HideIndicator();
+            interactableInRange = interactable;
+            interactable.ShowIndicator(interactable.transform.position);
+        }
         text.text = "Interact";
     }
 
     public void SetInteractableNull()
     {
-        ClearIndicator();
+        interactableInRange?.HideIndicator();
         interactableInRange = null;
         text.text = "Attack";
     }
 
-    public void ClearIndicator(Interactable interactable = null)
-    {
-        if (interactableInRange != null && interactable != interactableInRange)
-        {
-            interactableInRange.HideIndicator();
-        }
-    }
-
-    public void OnButtonClick()
+    private void OnButtonClick()
     {
         if (interactableInRange != null)
         {
@@ -49,7 +48,7 @@ public class InteractionButton : MonoBehaviour
         else
         {
             PlayerAttack.Instance.Attack();
-            lastAttackTime = Time.time; // 记录第一次攻击的时间
+            lastAttackTime = Time.time;
         }
     }
 
@@ -61,47 +60,39 @@ public class InteractionButton : MonoBehaviour
             if (interactableInRange == null && Time.time - lastAttackTime >= PlayerAttack.Instance.weaponInHand.weaponData.cooldownTime)
             {
                 PlayerAttack.Instance.Attack();
-                lastAttackTime = Time.time; 
+                lastAttackTime = Time.time;
             }
         }
     }
 
-    public void OnPointerUp()
-    {
-        isButtonPressed = false;
-    }
+    private void OnPointerUp() => isButtonPressed = false;
 
-    public void OnPointerDown()
+    private void OnPointerDown()
     {
         isButtonPressed = true;
         pointerDownTime = Time.time;
     }
-    public void Start()
-    {
-        // 添加指针事件监听器
-        EventTrigger trigger = Button.gameObject.AddComponent<EventTrigger>();
 
-        EventTrigger.Entry pointerDownEntry = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerDown
-        };
-        pointerDownEntry.callback.AddListener((data) => { OnPointerDown(); });
-        trigger.triggers.Add(pointerDownEntry);
-
-        EventTrigger.Entry pointerUpEntry = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerUp
-        };
-        pointerUpEntry.callback.AddListener((data) => { OnPointerUp(); });
-        trigger.triggers.Add(pointerUpEntry);
-    }
-
-    public void Update()
+    private void Update()
     {
         if (isButtonPressed && Time.time - pointerDownTime >= 1f)
         {
             StartCoroutine(LongPressCheck());
-            isButtonPressed = false; // 防止重复启动
+            isButtonPressed = false;
         }
+    }
+    public void ClearIndicator(Interactable interactable = null)
+    {
+        if (interactableInRange != null && interactable != interactableInRange)
+        {
+            interactableInRange.HideIndicator();
+        }
+    }
+    private void AddPointerEvent(EventTriggerType eventType, UnityEngine.Events.UnityAction callback)
+    {
+        var trigger = Button.gameObject.AddComponent<EventTrigger>();
+        var entry = new EventTrigger.Entry { eventID = eventType };
+        entry.callback.AddListener(_ => callback());
+        trigger.triggers.Add(entry);
     }
 }

@@ -11,26 +11,20 @@ public class BlinkingUI : MonoBehaviour
 
     void Update()
     {
-        if (isBlinking)
-        {
-            timer += Time.deltaTime;
-            float alpha = Mathf.Abs(Mathf.Sin(timer / blinkDuration * Mathf.PI));
-            textToBlink.alpha = alpha;
+        if (!isBlinking) return;
 
-            if (timer >= blinkDuration)
-            {
-                timer = 0f;
-            }
+        timer += Time.deltaTime;
+        textToBlink.alpha = Mathf.Abs(Mathf.Sin(timer / blinkDuration * Mathf.PI));
+
+        if (timer >= blinkDuration)
+        {
+            timer = 0f;
         }
     }
 
-    // 用來控制開始和停止閃爍
     public void ToggleBlinking(bool state)
     {
         isBlinking = state;
-        if (!isBlinking)
-        {
-            textToBlink.alpha = 1; // 確保停止閃爍時文本是可見的
-        }
+        textToBlink.alpha = state ? textToBlink.alpha : 1f;
     }
 }

@@ -19,3 +19,4 @@ MonoBehaviour:
   cooldownTime: 0.5
   damage: 5
   manaCost: 0
+  isMelee: 1

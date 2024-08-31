@@ -14,3 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WeaponObject: {fileID: 5853633110926794003, guid: 4b90a0a57a2d6314a9e0df2fbc8beddd, type: 3}
   WeaponName: lasershotgun
+  index: 6
+  attackRange: 0
+  cooldownTime: 0
+  damage: 0
+  manaCost: 0

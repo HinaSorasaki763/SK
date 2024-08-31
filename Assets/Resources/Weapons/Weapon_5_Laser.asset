@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f867d11e758b04468c3877439439143, type: 3}
   m_Name: Weapon_5_Laser
   m_EditorClassIdentifier: 
-  Name: Archer
-  Description: Archer description test
-  Hitpoint: 5
-  Mana: 160
-  Shield: 5
-  MovementSpeed: 5
-  MeleeDmg: 5
+  WeaponObject: {fileID: 5853633110926794003, guid: d1ca143414e23664e861ce32fb568f04, type: 3}
+  WeaponName: Laser
+  index: 5
+  attackRange: 0
+  cooldownTime: 0
+  damage: 0
+  manaCost: 0
