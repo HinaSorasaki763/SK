@@ -170,27 +170,45 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    public void PickupWeapon(Weapon weapon)
+    public void PickupWeapon(Weapon newWeapon)
     {
-        Transform weaponHandle = weapon.transform.Find("Handle");
+        Transform weaponHandle = newWeapon.transform.Find("Handle");
         if (weaponHandle == null || Character == null) return;
 
-        AttachWeaponToCharacter(weapon, weaponHandle);
-        ManageWeaponInventory(weapon);
-        if (weaponInHand == null)
+        if (weapons.Count >= maxWeapon)
         {
-            EquipWeapon(weapon, weaponHandle);
+            RemoveWeapon(weaponInHand);
+            Weapon oldWeapon = weaponInHand;
+            oldWeapon.transform.position = newWeapon.transform.position;
+            oldWeapon.transform.rotation = Quaternion.identity;
+            oldWeapon.ShowIndicator(oldWeapon.transform.position);
+            weaponInHand = newWeapon;
+            AttachWeaponToCharacter(newWeapon);
+            ManageWeaponInventory(newWeapon);
+            DisableOtherWeapons(newWeapon);
         }
-        SwitchWeapon();
+        else
+        {
+            AttachWeaponToCharacter(newWeapon);
+            ManageWeaponInventory(newWeapon);
+            if (weaponInHand == null)
+            {
+                EquipWeapon(newWeapon, weaponHandle);
+            }
+            SwitchWeapon();
+        }
     }
 
-    private void AttachWeaponToCharacter(Weapon weapon, Transform weaponHandle)
+
+
+    private void AttachWeaponToCharacter(Weapon weapon)
     {
         weapon.transform.SetParent(Character.transform);
         AdjustWeaponInHandPosition();
         weapon.detectable = false;
         weapon.HideIndicator();
     }
+
 
     private void ManageWeaponInventory(Weapon weapon)
     {
@@ -221,6 +239,7 @@ public class PlayerAttack : MonoBehaviour
     public void RemoveWeapon(Weapon weapon)
     {
         weapons.Remove(weapon);
+        
         weapon.transform.SetParent(null);
         weapon.detectable = true;
         weapon.ShowIndicator(weapon.transform.position);

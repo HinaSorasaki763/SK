@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Downloads/BulletResouces.meta
 guid: c641235b8318c6d42a96795b100bcf99
+========
+guid: 9f43a65a4bc19bc4aa7090c39254b3d3
+>>>>>>>> main:Assets/Downloads/Weapon_Sprite.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
