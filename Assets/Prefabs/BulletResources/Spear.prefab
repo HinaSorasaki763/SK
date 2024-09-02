@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6003343048163696498}
   - component: {fileID: 4842441837476550604}
-  - component: {fileID: 7093159806596400826}
+  - component: {fileID: 4733659135478795133}
   m_Layer: 0
   m_Name: Spear
   m_TagString: Untagged
@@ -47,8 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Dmg: 0
---- !u!68 &7093159806596400826
-EdgeCollider2D:
+--- !u!60 &4733659135478795133
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -76,20 +76,25 @@ EdgeCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_EdgeRadius: 0
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   m_Points:
-  - {x: 0.5034105, y: -0.29303107}
-  - {x: -0.49239668, y: -0.28206235}
-  - {x: 0.008641869, y: 0.5752365}
-  - {x: 0.50295997, y: -0.2959913}
-  m_AdjacentStartPoint: {x: 0, y: 0}
-  m_AdjacentEndPoint: {x: 0, y: 0}
-  m_UseAdjacentStartPoint: 0
-  m_UseAdjacentEndPoint: 0
+    m_Paths:
+    - - {x: 0, y: 0.5787651}
+      - {x: -0.5, y: -0.289}
+      - {x: 0.5, y: -0.289}
+  m_UseDelaunayMesh: 0
 --- !u!1 &3602948788932986856
 GameObject:
   m_ObjectHideFlags: 0

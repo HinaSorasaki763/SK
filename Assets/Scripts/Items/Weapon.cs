@@ -1,5 +1,6 @@
 ﻿using CustomUtility;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 
 public abstract class Weapon : Interactable
@@ -13,7 +14,13 @@ public abstract class Weapon : Interactable
     {
         Initialize();
     }
-
+    public virtual void StopAllAttack()
+    {
+        foreach (var behavior in behaviours)
+        {
+            behavior.EndAttack();
+        }
+    }    
     protected virtual void Initialize()
     {
         weaponData = ResourcePool.Instance.weaponData[index];
@@ -22,7 +29,7 @@ public abstract class Weapon : Interactable
 
     public void AddBehavior(IWeaponBehaviour behaviour) => behaviours.Add(behaviour);
 
-    public void PerformAttack()
+    public void PerformAttack(bool isContinuous)
     {
         if (Time.time - lastAttackTime < weaponData.cooldownTime)
         {
@@ -30,12 +37,18 @@ public abstract class Weapon : Interactable
             return;
         }
 
-        Debug.Log($"Weapon {weaponData.WeaponName} Performing Attack");
+        Debug.Log($"Weapon {weaponData.WeaponName} Performing Attack (Continuous: {isContinuous})");
         foreach (var behavior in behaviours)
         {
-            behavior.Attack();
+            behavior.Attack(isContinuous);
         }
-
+        if (!isContinuous)
+        {
+            foreach (var behavior in behaviours)
+            {
+                behavior.EndAttack();
+            }
+        }
         lastAttackTime = Time.time;
     }
 

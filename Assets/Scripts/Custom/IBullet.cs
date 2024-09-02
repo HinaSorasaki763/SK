@@ -6,6 +6,7 @@ public interface IBullet
 {
     void Fire();
     void Fire(Vector3 direction);
+    void EndFire();
     List<AttackTypeTag> Tags { get; }
     void SetParent(GameObject parent);
 }
@@ -23,7 +24,6 @@ public abstract class BulletBase : IBullet
     protected abstract void InitializeBullet(GameObject bullet, Vector3 direction);
 
     public void SetParent(GameObject parent) => parentWeapon = parent;
-
     public void Fire() => Fire(parentWeapon.transform.right);
 
     public void Fire(Vector3 direction)
@@ -40,6 +40,10 @@ public abstract class BulletBase : IBullet
         bullet.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
         InitializeBullet(bullet, direction);
     }
+    public virtual void EndFire()
+    {
+        Debug.Log("EndFire called, but not implemented.");
+    }
 }
 
 public class LaserBullet : BulletBase
@@ -53,6 +57,14 @@ public class LaserBullet : BulletBase
     {
         bullet.GetComponent<Laser>()?.Initialize(parentWeapon, continuous);
         Debug.Log($"Firing {(continuous ? "continuous" : "short-term")} laser from {parentWeapon} in direction {direction}");
+    }
+    public override void EndFire()
+    {        var laser = parentWeapon.transform.GetComponentInChildren<Laser>();
+        if (laser != null)
+        {
+            laser.EndLaser();
+            Debug.Log("Laser fire ended.");
+        }
     }
 }
 

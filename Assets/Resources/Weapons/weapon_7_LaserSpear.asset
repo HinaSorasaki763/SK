@@ -16,7 +16,7 @@ MonoBehaviour:
   WeaponName: laserSpear
   index: 7
   attackRange: 0
-  cooldownTime: 0
+  cooldownTime: 0.6
   damage: 0
   manaCost: 0
   isMelee: 1

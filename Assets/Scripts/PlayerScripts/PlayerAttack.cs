@@ -158,18 +158,17 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    public void Attack()
+    public void Attack(bool isContinuous)
     {
         if (!weaponInHand.weaponData.isMelee && closetEnemyDistance <= 2)
         {
-            handWeapon.PerformAttack();
+            handWeapon.PerformAttack(isContinuous);
         }
         else
         {
-            weaponInHand?.PerformAttack();
+            weaponInHand?.PerformAttack(isContinuous);
         }
     }
-
     public void PickupWeapon(Weapon newWeapon)
     {
         Transform weaponHandle = newWeapon.transform.Find("Handle");

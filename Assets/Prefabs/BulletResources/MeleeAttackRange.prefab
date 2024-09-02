@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5331796711489613540}
   - component: {fileID: 8626126556731229956}
-  - component: {fileID: 7895251630419601020}
+  - component: {fileID: 1559170736044331958}
   m_Layer: 0
   m_Name: MeleeAttackRange
   m_TagString: Untagged
@@ -47,8 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Dmg: 0
---- !u!68 &7895251630419601020
-EdgeCollider2D:
+--- !u!60 &1559170736044331958
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -79,20 +79,25 @@ EdgeCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.5, y: 0.5}
-  m_EdgeRadius: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   m_Points:
-  - {x: 0.49778903, y: -0.4990071}
-  - {x: -0.49238738, y: -0.4963944}
-  - {x: -0.49559546, y: 0.5000828}
-  - {x: -0.23121688, y: 0.4712448}
-  - {x: 0.080390334, y: 0.33005905}
-  - {x: 0.43019077, y: -0.06531522}
-  - {x: 0.47671196, y: -0.48855662}
-  m_AdjacentStartPoint: {x: 0, y: 0}
-  m_AdjacentEndPoint: {x: 0, y: 0}
-  m_UseAdjacentStartPoint: 0
-  m_UseAdjacentEndPoint: 0
+    m_Paths:
+    - - {x: 0, y: 1}
+      - {x: 0, y: 0}
+      - {x: 1, y: 0}
+      - {x: 1, y: 0.2}
+      - {x: 0.8, y: 0.6}
+      - {x: 0.5, y: 0.85}
+  m_UseDelaunayMesh: 0
 --- !u!1 &5800344774833298792
 GameObject:
   m_ObjectHideFlags: 0

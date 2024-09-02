@@ -5,7 +5,8 @@ using System.Linq;
 
 public interface IWeaponBehaviour
 {
-    void Attack();
+    void Attack(bool isContinuous);
+    void EndAttack();
     List<AttackTypeTag> Tags { get; }
 }
 
@@ -13,7 +14,8 @@ public abstract class WeaponBehaviourBase : IWeaponBehaviour
 {
     protected GameObject parentWeapon;
     public abstract List<AttackTypeTag> Tags { get; }
-    public abstract void Attack();
+    public abstract void Attack(bool isContinuous);
+    public abstract void EndAttack();
 
     protected WeaponBehaviourBase(GameObject parentWeapon)
     {
@@ -41,8 +43,11 @@ public class Example : WeaponBehaviourBase
     public override List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
 
     public Example(GameObject parentWeapon) : base(parentWeapon) { }
-
-    public override void Attack()
+    public override void EndAttack()
+    {
+        
+    }
+    public override void Attack(bool isContinuous)
     {
         Debug.Log("Example Attack");
         DebugTags();
@@ -52,8 +57,13 @@ public class Example : WeaponBehaviourBase
 public class LaserAttack : RangedWeaponBehaviour
 {
     public LaserAttack(IBullet bulletType, GameObject parentWeapon) : base(bulletType, parentWeapon) { }
+    public override void EndAttack()
+    {
+        bulletType.EndFire();
+        Debug.Log("EndAttack");
+    }
 
-    public override void Attack()
+    public override void Attack(bool isContinuous)
     {
         Debug.Log("Laser Attack");
         bulletType.Fire();
@@ -73,8 +83,12 @@ public class SpearAttack : WeaponBehaviourBase
     }
 
     public override List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
+    public override void EndAttack()
+    {
 
-    public override void Attack()
+    }
+
+    public override void Attack(bool isContinuous)
     {
         Debug.Log("Spear Attack");
         DebugTags();
@@ -101,8 +115,11 @@ public class ShotgunAttack : RangedWeaponBehaviour
         this.numberOfPellets = numberOfPellets;
         this.spreadAngle = spreadAngle;
     }
+    public override void EndAttack()
+    {
 
-    public override void Attack()
+    }
+    public override void Attack(bool isContinuous)
     {
         Debug.Log($"Shotgun Attack, numberOfPellets = {numberOfPellets}");
         for (int i = 0; i < numberOfPellets; i++)
@@ -120,8 +137,11 @@ public class ShotgunAttack : RangedWeaponBehaviour
 public class MachineGunAttack : RangedWeaponBehaviour
 {
     public MachineGunAttack(IBullet bulletType, GameObject parentWeapon) : base(bulletType, parentWeapon) { }
+    public override void EndAttack()
+    {
 
-    public override void Attack()
+    }
+    public override void Attack(bool isContinuous)
     {
         Debug.Log("MachineGun Attack");
         bulletType.Fire();
@@ -141,8 +161,11 @@ public class BladeAttack : WeaponBehaviourBase
     }
 
     public override List<AttackTypeTag> Tags => new List<AttackTypeTag> { AttackTypeTag.Melee };
+    public override void EndAttack()
+    {
 
-    public override void Attack()
+    }
+    public override void Attack(bool isContinuous)
     {
         Debug.Log($"Blade Attack length = {length}");
         DebugTags();

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Laser : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class Laser : MonoBehaviour
     private float damageInterval = 0.25f;
     private float damageTimer;
     const float tempLaserLife = 0.1f;
+    const float continuousLaserLife = 0.2f;
     private Collider2D laserCollider;
     private Collider2D[] results = new Collider2D[10];
     private void Awake()
@@ -27,7 +29,16 @@ public class Laser : MonoBehaviour
             Debug.Log($"damageTimer = {damageTimer}");
         }
     }
+    public void EndLaser()
+    {
+        StartCoroutine(ReturnLaserWithDelay());
+    }
 
+    private IEnumerator ReturnLaserWithDelay()
+    {
+        yield return new WaitForSeconds(continuousLaserLife);
+        ReturnLaser();
+    }
     public void Initialize(GameObject parentWeapon, bool isContinuous)
     {
         continuous = isContinuous;

@@ -21,6 +21,7 @@ public class SwitchWeapon : MonoBehaviour
 
     private void OnSwitchWeapon()
     {
+        PlayerAttack.Instance.weaponInHand.StopAllAttack();
         StartCoroutine(ShowWeaponName(PlayerAttack.Instance.SwitchWeapon()));
     }
 

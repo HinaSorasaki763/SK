@@ -47,7 +47,7 @@ public class InteractionButton : MonoBehaviour
         }
         else
         {
-            PlayerAttack.Instance.Attack();
+            PlayerAttack.Instance.Attack(false);
             lastAttackTime = Time.time;
         }
     }
@@ -56,16 +56,27 @@ public class InteractionButton : MonoBehaviour
     {
         while (isButtonPressed)
         {
-            yield return new WaitForSeconds(1f);
+            Debug.Log(isButtonPressed);
+            yield return new WaitForSeconds(.25f);
+
             if (interactableInRange == null && Time.time - lastAttackTime >= PlayerAttack.Instance.weaponInHand.weaponData.cooldownTime)
             {
-                PlayerAttack.Instance.Attack();
+                PlayerAttack.Instance.Attack(true);
                 lastAttackTime = Time.time;
+                Debug.Log($"lastAttackTime = {lastAttackTime}");
             }
         }
     }
 
-    private void OnPointerUp() => isButtonPressed = false;
+    private void OnPointerUp()
+    {
+        isButtonPressed = false;
+        if (PlayerAttack.Instance.weaponInHand != null)
+        {
+            PlayerAttack.Instance.weaponInHand.StopAllAttack();
+        }
+    }
+
 
     private void OnPointerDown()
     {
@@ -78,7 +89,7 @@ public class InteractionButton : MonoBehaviour
         if (isButtonPressed && Time.time - pointerDownTime >= 1f)
         {
             StartCoroutine(LongPressCheck());
-            isButtonPressed = false;
+
         }
     }
     public void ClearIndicator(Interactable interactable = null)
